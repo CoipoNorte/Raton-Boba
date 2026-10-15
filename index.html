@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Ratón Boba · Tea Lab: un puzle de combinaciones con perlas, té y leche. Completa pedidos en la Tienda y gana propinas." />
+    <meta name="theme-color" content="#b9a4f0" />
+    <link rel="icon" type="image/svg+xml" href="./icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <title>Raton Boba</title>
+    <style>
+      html, body { height: 100%; margin: 0; background: #fff9ee; }
+      #root { height: 100%; }
+      .rb-splash {
+        position: fixed; inset: 0; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; gap: 18px; padding: 24px;
+        background: radial-gradient(700px 500px at 20% 0%, rgba(201,182,255,.55), transparent 60%),
+                    radial-gradient(600px 460px at 100% 100%, rgba(184,230,164,.5), transparent 60%),
+                    linear-gradient(180deg, #fff9ee, #f5eeff);
+        font-family: "Nunito", ui-rounded, system-ui, sans-serif; color: #5b44a8; text-align: center;
+      }
+      .rb-splash svg { width: 120px; height: 120px; animation: rb-bob 1.6s ease-in-out infinite; }
+      .rb-splash h1 { margin: 0; font-size: 34px; font-weight: 900; color: #5b44a8; }
+      .rb-splash p { margin: 0; font-size: 16px; font-weight: 700; color: #7a6a8a; }
+      .rb-splash .rb-dots { width: 180px; height: 8px; border-radius: 999px; background: #e6dcff; overflow: hidden; }
+      .rb-splash .rb-dots span {
+        display: block; height: 100%; width: 40%; border-radius: 999px;
+        background: linear-gradient(90deg, #b9a4f0, #8fbf6a);
+        animation: rb-load 1.3s ease-in-out infinite;
+      }
+      @keyframes rb-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+      @keyframes rb-load { 0% { transform: translateX(-100%); } 100% { transform: translateX(260%); } }
+      @media (prefers-reduced-motion: reduce) {
+        .rb-splash svg, .rb-splash .rb-dots span { animation: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div class="rb-splash" role="status" aria-live="polite">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <circle cx="36" cy="36" r="16" fill="#f4c6d4" />
+          <circle cx="84" cy="36" r="16" fill="#f4c6d4" />
+          <ellipse cx="60" cy="64" rx="36" ry="32" fill="#f6efe6" stroke="#d8c6b5" stroke-width="2" />
+          <path d="M26 46 Q60 30 94 46 L94 52 Q60 42 26 52 Z" fill="#8fbf6a" />
+          <circle cx="48" cy="70" r="5" fill="#2b1d16" />
+          <circle cx="72" cy="70" r="5" fill="#2b1d16" />
+          <ellipse cx="60" cy="78" rx="3.4" ry="2.4" fill="#ff8fa3" />
+          <path d="M40 92 Q60 98 80 92 L84 114 Q60 120 36 114 Z" fill="#ffffff" stroke="#e5d6c6" stroke-width="1.5" />
+          <path d="M82 80 L102 80 L99 110 Q98 116 92 116 L85 110 Z" fill="#d7a878" stroke="#a9744a" stroke-width="1.5" />
+          <rect x="80" y="76" width="24" height="7" rx="3" fill="#ffb7c9" />
+        </svg>
+        <h1>Ratón Boba</h1>
+        <p>Cocinando las perlas de tapioca…</p>
+        <div class="rb-dots"><span></span></div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
