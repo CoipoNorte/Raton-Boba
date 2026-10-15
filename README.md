@@ -1,4 +1,4 @@
-# [🧋 Ratón Boba · Tea Lab](https://coiponorte.github.io/Raton-Boba/)
+# [Ratón Boba · Tea Lab](https://coiponorte.github.io/Raton-Boba/)
 
 [![Jugar ahora](https://img.shields.io/badge/Jugar%20ahora-%F0%9F%A7%8B%20coiponorte.github.io-7d62c9?style=for-the-badge)](https://coiponorte.github.io/Raton-Boba/)
 
