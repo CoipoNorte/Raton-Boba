@@ -11,9 +11,10 @@ export interface ZoneInfo {
 }
 
 export const ZONES: ZoneInfo[] = [
-  { id: 0, name: 'Barra de té', blurb: 'Primeros pedidos, perlas y té suave.', from: 1, to: 10 },
-  { id: 1, name: 'Jardín de flores', blurb: 'Hielo, taro y nuevos sabores.', from: 11, to: 20 },
-  { id: 2, name: 'Cocina de boba', blurb: 'Pedidos complejos para maestros.', from: 21, to: 30 },
+  { id: 0, name: 'Barra de té', blurb: 'Primeros pedidos, perlas y té suave.', from: 1, to: 15 },
+  { id: 1, name: 'Jardín de flores', blurb: 'Hielo, taro y nuevos sabores.', from: 16, to: 30 },
+  { id: 2, name: 'Cocina de boba', blurb: 'Pedidos complejos para maestros.', from: 31, to: 45 },
+  { id: 3, name: 'Festival Boba', blurb: 'El gran final: todo lo aprendido, a lo grande.', from: 46, to: 60 },
 ];
 
 export { LEVEL_COUNT };
@@ -39,18 +40,26 @@ export function buildLevel(id: number): LevelConfig {
   let moves = Math.max(16, 22 - Math.floor((id - 1) / 8));
   let ice: LevelConfig['ice'] = null;
 
+  // En tableros de 6 sabores cada ingrediente sale menos: metas más contenidas.
+  const crowded = kinds.length >= 6;
+
   if (hasIce) {
-    const count = 4 + Math.floor(id / 6);
+    // El hielo crece con el nivel pero con tope para seguir siendo superable.
+    const count = Math.min(10, 4 + Math.floor(id / 6));
     const layers: 1 | 2 = id >= 17 ? 2 : 1;
     ice = { count, layers };
     goals.push({ type: 'ice', target: count * layers });
-    moves += 4;
+    moves += crowded ? 6 : 4;
     if (id >= 17) {
       const kind = kinds[(id + 1) % kinds.length] as Kind;
-      goals.push({ type: 'collect', kind, target: Math.min(20, 10 + Math.floor(id / 2)) });
+      goals.push({
+        type: 'collect',
+        kind,
+        target: crowded ? Math.min(16, 8 + Math.floor(id / 3)) : Math.min(20, 10 + Math.floor(id / 2)),
+      });
     }
   } else if (hasDouble) {
-    const base = Math.min(22, 12 + Math.floor(id * 0.5));
+    const base = crowded ? Math.min(20, 11 + Math.floor(id * 0.45)) : Math.min(22, 12 + Math.floor(id * 0.5));
     const first = kinds[0] as Kind;
     const second = kinds[kinds.length - 1] as Kind;
     goals.push({ type: 'collect', kind: first, target: Math.floor(base * 0.6) });
@@ -58,10 +67,17 @@ export function buildLevel(id: number): LevelConfig {
     moves += 2;
   } else {
     const kind = kinds[id % kinds.length] as Kind;
-    goals.push({ type: 'collect', kind, target: Math.min(30, 12 + Math.floor(id * 0.7)) });
+    goals.push({
+      type: 'collect',
+      kind,
+      target: crowded ? Math.min(24, 11 + Math.floor(id * 0.55)) : Math.min(30, 12 + Math.floor(id * 0.7)),
+    });
   }
 
+  // Movimientos extra para las zonas altas (los niveles 1-30 quedan intactos).
   if (id >= 20) moves += 3;
+  if (id >= 31) moves += 2;
+  if (id >= 45) moves += 2;
 
   return {
     id,

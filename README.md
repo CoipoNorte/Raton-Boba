@@ -1,4 +1,4 @@
-# [Ratón Boba · Tea Lab](https://coiponorte.github.io/Raton-Boba/)
+# [🧋 Ratón Boba · Tea Lab](https://coiponorte.github.io/Raton-Boba/)
 
 [![Jugar ahora](https://img.shields.io/badge/Jugar%20ahora-%F0%9F%A7%8B%20coiponorte.github.io-7d62c9?style=for-the-badge)](https://coiponorte.github.io/Raton-Boba/)
 
@@ -9,13 +9,14 @@ Un puzle relajante y adictivo en el laboratorio de té de boba más acogedor de 
 ## Modos de juego
 
 ### 🛍️ Tienda
-El modo principal. Un camino con **30 pedidos** repartidos en tres zonas:
+El modo principal. Un camino decorado con **60 pedidos** repartidos en cuatro zonas, con perlas flotantes, vasitos de boba, burbujas y destellos:
 
 | Zona | Pedidos | Ambiente |
 |---|---|---|
-| Barra de té | 1 – 10 | Primeros pedidos con perlas y té suave |
-| Jardín de flores | 11 – 20 | Llega el hielo y nuevos sabores |
-| Cocina de boba | 21 – 30 | Pedidos complejos para maestros |
+| Barra de té | 1 – 15 | Primeros pedidos con perlas y té suave |
+| Jardín de flores | 16 – 30 | Llega el hielo y nuevos sabores |
+| Cocina de boba | 31 – 45 | Pedidos complejos para maestros |
+| Festival Boba | 46 – 60 | El gran final, a lo grande |
 
 Cada pedido tiene un objetivo (por ejemplo, reunir 12 perlas de fresa o romper el hielo) y un número limitado de movimientos. Cumple el objetivo para servir el pedido. Los pedidos se desbloquean en orden: completa uno con al menos una estrella para abrir el siguiente.
 
