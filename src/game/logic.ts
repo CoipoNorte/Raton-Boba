@@ -96,6 +96,12 @@ export function iceRemaining(board: Board): number {
   return total;
 }
 
+export function cookieRemaining(board: Board): number {
+  let total = 0;
+  for (const row of board) for (const t of row) total += t.cookie ?? 0;
+  return total;
+}
+
 /* -------------------------------------------------------------------------- */
 /*                              Búsqueda de combinaciones                     */
 /* -------------------------------------------------------------------------- */
@@ -105,9 +111,9 @@ export interface Run {
   cells: Pos[];
 }
 
-/** Una ficha puede combinarse si está libre de hielo y no es un arcoíris suelto. */
+/** Una ficha puede combinarse si está libre de hielo, galleta y no es un arcoíris suelto. */
 function isMatchable(t: Tile | undefined): t is Tile {
-  return !!t && t.ice === 0 && t.special !== 'rainbow';
+  return !!t && t.ice === 0 && (!t.cookie || t.cookie === 0) && t.special !== 'rainbow';
 }
 
 export function findRuns(board: Board): Run[] {
@@ -186,14 +192,22 @@ export function trySwap(board: Board, a: Pos, b: Pos): SwapResult {
   const ta = tileAt(board, a);
   const tb = tileAt(board, b);
   if (!ta || !tb) return { ...invalid, board };
+  if (ta.ice > 0 || (ta.cookie && ta.cookie > 0) || tb.ice > 0 || (tb.cookie && tb.cookie > 0)) {
+    return { ...invalid, board };
+  }
 
   const swapped = swapCells(board, a, b);
-  const sa = ta.special !== 'none' && ta.ice === 0 ? ta.special : 'none';
-  const sb = tb.special !== 'none' && tb.ice === 0 ? tb.special : 'none';
+  const sa = ta.special !== 'none' ? ta.special : 'none';
+  const sb = tb.special !== 'none' ? tb.special : 'none';
 
   // Dos arcoíris: limpian todo el tablero.
   if (sa === 'rainbow' && sb === 'rainbow') {
     return { ok: true, board: swapped, activated: [b], preferred: b, clearAll: true };
+  }
+
+  // Arcoíris + Tiger Boba o power-up: super explosión temática
+  if ((sa === 'rainbow' && sb === 'tiger') || (sa === 'tiger' && sb === 'rainbow')) {
+    return { ok: true, board: swapped, activated: [a, b], preferred: b, clearAll: true };
   }
 
   // Arcoíris + ingrediente: elimina todas las fichas de ese ingrediente.
@@ -212,6 +226,11 @@ export function trySwap(board: Board, a: Pos, b: Pos): SwapResult {
       preferred: b,
       clearAll: false,
     };
+  }
+
+  // Combinación de dos power-ups
+  if (sa !== 'none' && sb !== 'none') {
+    return { ok: true, board: swapped, activated: [a, b], preferred: b, clearAll: false };
   }
 
   // Power-up normal: se activa al intercambiarse.
@@ -259,17 +278,18 @@ const SPECIAL_PRIORITY: Record<Special, number> = {
   'striped-h': 1,
   'striped-v': 1,
   bomb: 2,
-  rainbow: 3,
+  tiger: 3,
+  rainbow: 4,
 };
 
 function pickSpawnPos(run: Run, preferred: Pos | null): Pos {
   if (preferred && run.cells.some((p) => samePos(p, preferred))) return preferred;
-  return run.cells[Math.floor(run.cells.length / 2)] ?? run.cells[0] as Pos;
+  return run.cells[Math.floor(run.cells.length / 2)] ?? (run.cells[0] as Pos);
 }
 
 /**
  * Calcula qué se elimina en un paso: combinaciones, power-ups activados,
- * power-ups creados, hielo golpeado y puntos. Función pura.
+ * power-ups creados, hielo y galletas golpeadas y puntos. Función pura.
  */
 export function computePlan(
   board: Board,
@@ -290,7 +310,7 @@ export function computePlan(
     const t = tileAt(board, p);
     if (!t) return;
     const k = keyOf(p);
-    if (t.ice > 0) {
+    if (t.ice > 0 || (t.cookie && t.cookie > 0)) {
       if (!hits.has(k)) hits.set(k, p);
       return;
     }
@@ -329,7 +349,14 @@ export function computePlan(
   for (const h of horizontal) {
     for (const v of vertical) {
       const inter = h.cells.find((p) => v.cells.some((q) => samePos(p, q)));
-      if (inter) setSpawn(inter, 'bomb');
+      if (inter) {
+        // Intersección de 5 o más: Tiger Boba swirl! De lo contrario bomba normal.
+        if (h.cells.length + v.cells.length >= 6) {
+          setSpawn(inter, 'tiger');
+        } else {
+          setSpawn(inter, 'bomb');
+        }
+      }
     }
   }
 
@@ -358,6 +385,25 @@ export function computePlan(
           }
         }
         break;
+      case 'tiger':
+        // Tiger Boba: 3 filas y 3 columnas completas en cruz gigante + diagonales
+        for (let dr = -1; dr <= 1; dr++) {
+          for (let c = 0; c < cols; c++) {
+            const r = p.r + dr;
+            if (inBounds(board, r, c)) add({ r, c });
+          }
+        }
+        for (let dc = -1; dc <= 1; dc++) {
+          for (let r = 0; r < rows; r++) {
+            const c = p.c + dc;
+            if (inBounds(board, r, c)) add({ r, c });
+          }
+        }
+        for (let d = -2; d <= 2; d++) {
+          if (inBounds(board, p.r + d, p.c + d)) add({ r: p.r + d, c: p.c + d });
+          if (inBounds(board, p.r + d, p.c - d)) add({ r: p.r + d, c: p.c - d });
+        }
+        break;
       case 'rainbow':
         if (!clearAll) {
           for (let r = 0; r < rows; r++) {
@@ -373,7 +419,7 @@ export function computePlan(
     }
   }
 
-  // Hielo vecino a una eliminación se rompe una capa (una sola vez por ficha).
+  // Hielo y galletas vecinos a una eliminación se golpean una capa
   for (const p of remove.values()) {
     for (const [dr, dc] of DIRS) {
       const r = p.r + dr;
@@ -381,7 +427,9 @@ export function computePlan(
       if (!inBounds(board, r, c)) continue;
       const k = `${r},${c}`;
       const t = tileAt(board, { r, c });
-      if (t && t.ice > 0 && !remove.has(k) && !hits.has(k)) hits.set(k, { r, c });
+      if (t && (t.ice > 0 || (t.cookie && t.cookie > 0)) && !remove.has(k) && !hits.has(k)) {
+        hits.set(k, { r, c });
+      }
     }
   }
 
@@ -392,10 +440,10 @@ export function computePlan(
     collected[t.kind] = (collected[t.kind] ?? 0) + 1;
   }
 
-  let points = remove.size * 10 + specialCount * 40 + hits.size * 25;
+  let points = remove.size * 12 + specialCount * 50 + hits.size * 30;
   for (const run of runs) {
     const len = run.cells.length;
-    points += len >= 5 ? 100 : len === 4 ? 60 : 30;
+    points += len >= 5 ? 120 : len === 4 ? 70 : 35;
   }
 
   return {
@@ -411,7 +459,7 @@ export function isEmptyPlan(plan: ClearPlan): boolean {
   return plan.removed.length === 0 && plan.hits.length === 0;
 }
 
-/** Aplica un plan: elimina, transforma, rompe hielo, hace caer y rellena. */
+/** Aplica un plan: elimina, transforma, rompe hielo / galletas, hace caer y rellena. */
 export function applyPlan(
   board: Board,
   plan: ClearPlan,
@@ -432,7 +480,11 @@ export function applyPlan(
       let tile: Tile = t;
       const spawn = spawnMap.get(k);
       if (spawn) tile = { ...tile, special: spawn.special, kind: spawn.kind };
-      if (hitSet.has(k)) tile = { ...tile, ice: Math.max(0, tile.ice - 1) };
+      if (hitSet.has(k)) {
+        const ice = Math.max(0, tile.ice - 1);
+        const cookie = tile.cookie ? Math.max(0, tile.cookie - 1) : 0;
+        tile = { ...tile, ice, cookie };
+      }
       return tile;
     }),
   );
@@ -455,11 +507,11 @@ export function applyPlan(
     while (r >= 0) {
       const roll = rand(next);
       next = roll.gen;
-      const kind = kinds[Math.floor(roll.value * kinds.length)] ?? kinds[0] as Kind;
+      const kind = kinds[Math.floor(roll.value * kinds.length)] ?? (kinds[0] as Kind);
       const id = next.nextId;
       next = { ...next, nextId: next.nextId + 1 };
       const row = out[r];
-      if (row) row[c] = { id, kind, special: 'none', ice: 0 };
+      if (row) row[c] = { id, kind, special: 'none', ice: 0, cookie: 0 };
       r--;
     }
   }
@@ -492,13 +544,15 @@ export function createBoard(cfg: LevelConfig): { board: Board; gen: GenState } {
         const options = cfg.kinds.filter((k) => !forbidden.includes(k));
         const roll = rand(gen);
         gen = roll.gen;
-        const kind = options[Math.floor(roll.value * options.length)] ?? cfg.kinds[0] as Kind;
+        const kind = options[Math.floor(roll.value * options.length)] ?? (cfg.kinds[0] as Kind);
         const id = gen.nextId;
         gen = { ...gen, nextId: gen.nextId + 1 };
-        row.push({ id, kind, special: 'none', ice: 0 });
+        row.push({ id, kind, special: 'none', ice: 0, cookie: 0 });
       }
       grid.push(row);
     }
+
+    const occupied = new Set<string>();
 
     if (cfg.ice) {
       const positions: Pos[] = [];
@@ -508,7 +562,30 @@ export function createBoard(cfg: LevelConfig): { board: Board; gen: GenState } {
       for (const p of shuffled.items.slice(0, cfg.ice.count)) {
         const row = grid[p.r];
         const t = row?.[p.c];
-        if (row && t) row[p.c] = { ...t, ice: cfg.ice.layers };
+        if (row && t) {
+          row[p.c] = { ...t, ice: cfg.ice.layers };
+          occupied.add(keyOf(p));
+        }
+      }
+    }
+
+    if (cfg.cookie) {
+      const positions: Pos[] = [];
+      for (let r = 0; r < cfg.rows; r++) {
+        for (let c = 0; c < cfg.cols; c++) {
+          const p = { r, c };
+          if (!occupied.has(keyOf(p))) positions.push(p);
+        }
+      }
+      const shuffled = shuffleArray(positions, gen);
+      gen = shuffled.gen;
+      for (const p of shuffled.items.slice(0, cfg.cookie.count)) {
+        const row = grid[p.r];
+        const t = row?.[p.c];
+        if (row && t) {
+          row[p.c] = { ...t, cookie: cfg.cookie.layers };
+          occupied.add(keyOf(p));
+        }
       }
     }
 
@@ -553,15 +630,36 @@ export function evaluateGoals(
   board: Board,
   collected: Partial<Record<Kind, number>>,
   iceTotal: number,
+  cookieTotal = 0,
+  tips = 0,
+  maxCascade = 0,
 ): GoalStatus[] {
   return goals.map((goal) => {
-    if (goal.type === 'collect') {
-      const current = Math.min(collected[goal.kind] ?? 0, goal.target);
-      return { goal, current, target: goal.target, done: current >= goal.target };
+    switch (goal.type) {
+      case 'collect': {
+        const current = Math.min(collected[goal.kind] ?? 0, goal.target);
+        return { goal, current, target: goal.target, done: current >= goal.target };
+      }
+      case 'cookie': {
+        const broken = Math.max(0, cookieTotal - cookieRemaining(board));
+        const current = Math.min(broken, goal.target);
+        return { goal, current, target: goal.target, done: current >= goal.target };
+      }
+      case 'tips': {
+        const current = Math.min(tips, goal.target);
+        return { goal, current, target: goal.target, done: current >= goal.target };
+      }
+      case 'combo': {
+        const current = Math.min(maxCascade, goal.target);
+        return { goal, current, target: goal.target, done: current >= goal.target };
+      }
+      case 'ice':
+      default: {
+        const broken = Math.max(0, iceTotal - iceRemaining(board));
+        const current = Math.min(broken, goal.target);
+        return { goal, current, target: goal.target, done: current >= goal.target };
+      }
     }
-    const broken = Math.max(0, iceTotal - iceRemaining(board));
-    const current = Math.min(broken, goal.target);
-    return { goal, current, target: goal.target, done: current >= goal.target };
   });
 }
 
@@ -584,6 +682,10 @@ export function countIce(board: Board): number {
   return iceRemaining(board);
 }
 
+export function countCookie(board: Board): number {
+  return cookieRemaining(board);
+}
+
 /** Estado inicial de una partida (función pura). */
 export function createGame(cfg: LevelConfig): GameState {
   const { board, gen } = createBoard(cfg);
@@ -593,6 +695,7 @@ export function createGame(cfg: LevelConfig): GameState {
     tips: 0,
     collected: {},
     iceTotal: countIce(board),
+    cookieTotal: countCookie(board),
     popping: [],
     cascade: 0,
     gain: 0,
@@ -606,6 +709,7 @@ export function createGame(cfg: LevelConfig): GameState {
     bonus: 0,
     turns: 0,
     maxCascade: 0,
+    feverLevel: 0,
   };
 }
 

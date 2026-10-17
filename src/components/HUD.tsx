@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Check, Coins, Pause, Sparkles, Volume2, VolumeX, Footprints, Snowflake } from 'lucide-react';
+import { Check, Coins, Pause, Sparkles, Volume2, VolumeX, Footprints, Snowflake, Cookie, Flame } from 'lucide-react';
 import { CandyIcon } from './CandyIcon';
 import { INGREDIENTS } from '../game/ingredients';
 import type { GoalStatus, Kind } from '../game/types';
@@ -8,7 +8,7 @@ interface PillProps {
   icon: ReactNode;
   label: string;
   value: string | number;
-  tone?: 'lavender' | 'matcha' | 'mango' | 'sakura';
+  tone?: 'lavender' | 'matcha' | 'mango' | 'sakura' | 'tiger';
 }
 
 const TONES: Record<NonNullable<PillProps['tone']>, string> = {
@@ -16,6 +16,7 @@ const TONES: Record<NonNullable<PillProps['tone']>, string> = {
   matcha: 'bg-[#eaf7dc] text-[#3f7a3a]',
   mango: 'bg-[#fff4cf] text-[#8a5a00]',
   sakura: 'bg-[#ffe6ee] text-[#a32a57]',
+  tiger: 'bg-[#ffe8cc] text-[#a34e00] border-[#ffb366]',
 };
 
 /** Pastilla compacta: la etiqueta sólo aparece cuando el contenedor tiene espacio. */
@@ -82,6 +83,8 @@ export function TopBar({
   onToggleSound,
   onPause,
 }: TopBarProps) {
+  const isFever = cascade >= 3;
+
   return (
     <header className="@container flex w-full items-center gap-2" aria-label="Marcador">
       <div className="flex min-w-0 flex-1 flex-wrap items-center gap-1.5">
@@ -96,7 +99,14 @@ export function TopBar({
           <Pill icon={<Footprints />} label="Movs" value={movesLeft} tone={movesLeft <= 3 ? 'sakura' : 'matcha'} />
         )}
         <Pill icon={<Coins />} label="Propinas" value={tips.toLocaleString('es-ES')} tone="mango" />
-        {cascade >= 2 && <Pill icon={<Sparkles />} label="Combo" value={`×${cascade}`} tone="sakura" />}
+        {cascade >= 2 && (
+          <Pill
+            icon={isFever ? <Flame className="animate-bounce text-[#ff6b00]" /> : <Sparkles />}
+            label={isFever ? 'Fiebre' : 'Combo'}
+            value={`×${cascade}`}
+            tone={isFever ? 'tiger' : 'sakura'}
+          />
+        )}
       </div>
       <div className="flex shrink-0 items-center gap-2">
         <IconButton label={soundOn ? 'Silenciar sonido' : 'Activar sonido'} onClick={onToggleSound} pressed={soundOn}>
@@ -110,7 +120,7 @@ export function TopBar({
   );
 }
 
-/** Lista de pedidos: ingrediente, progreso y confirmación verde al cumplirse. */
+/** Lista de pedidos: ingrediente, hielo, galleta, progreso y confirmación verde al cumplirse. */
 export function GoalsPanel({ goals, compact = false }: { goals: GoalStatus[]; compact?: boolean }) {
   return (
     <section
@@ -120,19 +130,41 @@ export function GoalsPanel({ goals, compact = false }: { goals: GoalStatus[]; co
       <ul className={`grid gap-2 ${compact ? 'grid-cols-2' : 'grid-cols-1'}`}>
         {goals.map((g, i) => {
           const goal = g.goal;
-          const label = goal.type === 'ice' ? 'Romper hielo' : INGREDIENTS[goal.kind].label;
+          let label = '';
+          let art: ReactNode;
+
+          switch (goal.type) {
+            case 'ice':
+              label = 'Romper hielo';
+              art = <CandyIcon kind="leche" ice={1} className="h-8 w-8" />;
+              break;
+            case 'cookie':
+              label = 'Galleta crujiente';
+              art = <CandyIcon kind="perla" cookie={1} className="h-8 w-8" />;
+              break;
+            case 'tips':
+              label = 'Ganar propinas';
+              art = <Coins className="h-6 w-6 text-[#c98a00]" />;
+              break;
+            case 'combo':
+              label = `Combo ×${goal.target}`;
+              art = <Flame className="h-6 w-6 text-[#ff6b00]" />;
+              break;
+            default:
+              label = INGREDIENTS[goal.kind].label;
+              art = <CandyIcon kind={goal.kind} className="h-8 w-8" />;
+              break;
+          }
+
           const pct = Math.min(100, Math.round((g.current / Math.max(1, g.target)) * 100));
+
           return (
             <li
               key={i}
-              className={`flex min-w-0 items-center gap-2 rounded-2xl p-1.5 ${g.done ? 'bg-[#eaf7dc]' : 'bg-[#faf6ff]'}`}
+              className={`flex min-w-0 items-center gap-2 rounded-2xl p-1.5 transition-colors ${g.done ? 'bg-[#eaf7dc]' : 'bg-[#faf6ff]'}`}
             >
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white shadow-inner">
-                {goal.type === 'ice' ? (
-                  <CandyIcon kind="leche" ice={1} className="h-8 w-8" />
-                ) : (
-                  <CandyIcon kind={goal.kind} className="h-8 w-8" />
-                )}
+                {art}
               </span>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between gap-1">
@@ -143,13 +175,13 @@ export function GoalsPanel({ goals, compact = false }: { goals: GoalStatus[]; co
                     </span>
                   ) : (
                     <span className="shrink-0 text-xs font-extrabold tabular-nums text-[#5b44a8]">
-                      {g.current}/{g.target}
+                      {g.current.toLocaleString('es-ES')}/{g.target.toLocaleString('es-ES')}
                     </span>
                   )}
                 </div>
                 <div className="mt-1 h-2 overflow-hidden rounded-full bg-[#e6dcff]">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-[#b9a4f0] to-[#8fbf6a] transition-[width] duration-500"
+                    className="h-full rounded-full bg-gradient-to-r from-[#b9a4f0] via-[#ffd166] to-[#8fbf6a] transition-[width] duration-500"
                     style={{ width: `${pct}%` }}
                   />
                 </div>
@@ -166,10 +198,11 @@ interface FreeStatsPanelProps {
   kinds: Kind[];
   collected: Partial<Record<Kind, number>>;
   iceLeft: number;
+  cookieLeft?: number;
 }
 
 /** Modo libre: en lugar de objetivos, muestra cuántos sabores has servido en la sesión. */
-export function FreeStatsPanel({ kinds, collected, iceLeft }: FreeStatsPanelProps) {
+export function FreeStatsPanel({ kinds, collected, iceLeft, cookieLeft = 0 }: FreeStatsPanelProps) {
   const served = kinds.reduce((sum, k) => sum + (collected[k] ?? 0), 0);
   return (
     <section
@@ -200,6 +233,17 @@ export function FreeStatsPanel({ kinds, collected, iceLeft }: FreeStatsPanelProp
             <div className="min-w-0">
               <p className="truncate text-[11px] font-bold text-[#2e6a9a]">Hielo</p>
               <p className="text-sm font-extrabold tabular-nums text-[#2e6a9a]">{iceLeft}</p>
+            </div>
+          </li>
+        )}
+        {cookieLeft > 0 && (
+          <li className="flex min-w-0 items-center gap-1.5 rounded-2xl bg-[#fff2e0] p-1.5">
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white text-[#a35c1d]">
+              <Cookie className="h-5 w-5" />
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-[11px] font-bold text-[#8b4f1f]">Galleta</p>
+              <p className="text-sm font-extrabold tabular-nums text-[#8b4f1f]">{cookieLeft}</p>
             </div>
           </li>
         )}

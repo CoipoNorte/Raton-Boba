@@ -4,9 +4,9 @@ export const POP_MS = 230;
 export const FALL_MS = 280;
 export const HINT_DELAY_MS = 6500;
 export const BONUS_PER_MOVE = 40;
-export const MAX_MULTIPLIER = 4;
+export const MAX_MULTIPLIER = 5;
 
-export const LEVEL_COUNT = 60;
+export const LEVEL_COUNT = 200;
 
 export const PALETTE = {
   lavender: '#b9a4f0',

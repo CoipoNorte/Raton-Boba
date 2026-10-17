@@ -39,10 +39,25 @@ import type {
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => window.setTimeout(resolve, ms));
 
 function playPlanSound(plan: ClearPlan, cascade: number): void {
-  if (plan.spawns.length > 0) sfx.special();
-  else sfx.pop(cascade - 1);
-  if (plan.hits.length > 0) sfx.click();
-  if (plan.removed.length >= 6) sfx.pearls(4);
+  const hasTiger = plan.spawns.some((s) => s.special === 'tiger');
+  if (hasTiger) {
+    sfx.tiger();
+  } else if (cascade >= 3) {
+    sfx.fever();
+  } else if (plan.spawns.length > 0) {
+    sfx.special();
+  } else {
+    sfx.pop(cascade - 1);
+  }
+
+  if (plan.hits.length > 0) {
+    sfx.crunch();
+  }
+  if (plan.removed.length >= 10) {
+    sfx.boom();
+  } else if (plan.removed.length >= 6) {
+    sfx.pearls(4);
+  }
 }
 
 export interface BobaGameApi {
@@ -148,6 +163,7 @@ export function useBobaGame(
             collected,
             cascade,
             maxCascade: Math.max(gameRef.current.maxCascade, cascade),
+            feverLevel: cascade >= 3 ? cascade : 0,
             gain,
             gainKey: gameRef.current.gainKey + 1,
             busy: true,
@@ -190,11 +206,21 @@ export function useBobaGame(
             status: 'playing',
             bonus: 0,
             gain: 0,
+            feverLevel: 0,
           });
           return;
         }
 
-        const statuses = evaluateGoals(cfg.goals, board, collected, s0.iceTotal);
+        const bestCascade = Math.max(gameRef.current.maxCascade, cascade);
+        const statuses = evaluateGoals(
+          cfg.goals,
+          board,
+          collected,
+          s0.iceTotal,
+          s0.cookieTotal,
+          tips,
+          bestCascade,
+        );
         let status: Status = 'playing';
         let finalTips = tips;
         let bonus = 0;
@@ -219,6 +245,7 @@ export function useBobaGame(
           status,
           bonus,
           gain: 0,
+          feverLevel: 0,
         });
 
         if (status === 'won') {
@@ -280,8 +307,25 @@ export function useBobaGame(
   }, [game.board, game.busy, game.status, paused, commit]);
 
   const goals = useMemo(
-    () => evaluateGoals(cfg.goals, game.board, game.collected, game.iceTotal),
-    [cfg.goals, game.board, game.collected, game.iceTotal],
+    () =>
+      evaluateGoals(
+        cfg.goals,
+        game.board,
+        game.collected,
+        game.iceTotal,
+        game.cookieTotal,
+        game.tips,
+        game.maxCascade,
+      ),
+    [
+      cfg.goals,
+      game.board,
+      game.collected,
+      game.iceTotal,
+      game.cookieTotal,
+      game.tips,
+      game.maxCascade,
+    ],
   );
 
   return { game, goals, tap, swap, restart };

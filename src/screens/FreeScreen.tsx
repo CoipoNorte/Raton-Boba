@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Play, Snowflake, Sparkles, Trophy, Star, Layers } from 'lucide-react';
+import { ArrowLeft, Cookie, Play, Snowflake, Sparkles, Trophy, Star, Layers } from 'lucide-react';
 import { CandyIcon } from '../components/CandyIcon';
 import { Mascot } from '../components/Mascot';
 import { ALL_KINDS, INGREDIENTS } from '../game/ingredients';
@@ -21,7 +21,7 @@ const KIND_OPTIONS: { count: FreeKindCount; label: string; hint: string }[] = [
   { count: 6, label: '6 sabores', hint: 'Maestro' },
 ];
 
-/** Lobby del modo libre: elige sabores y hielo, y consulta tus récords. */
+/** Lobby del modo libre: elige sabores, hielo y galletas, y consulta tus récords. */
 export function FreeScreen({ save, layout, onBack, onStart }: FreeScreenProps) {
   const [prefs, setPrefs] = useState<FreePrefs>(save.freePrefs);
   const row = layout.orientation === 'landscape' && layout.height < 620;
@@ -65,7 +65,7 @@ export function FreeScreen({ save, layout, onBack, onStart }: FreeScreenProps) {
             </p>
 
             <div className="grid grid-cols-3 gap-2">
-              <Record icon={<Trophy className="h-4 w-4" />} label="Mejor sesión" value={save.freeBest} tone="bg-[#fff4cf] text-[#8a5a00]" />
+              <Record icon={<Trophy className="h-4 w-4" />} label="Mejor sesión" value={save.freeBest.toLocaleString('es-ES')} tone="bg-[#fff4cf] text-[#8a5a00]" />
               <Record icon={<Sparkles className="h-4 w-4" />} label="Mejor combo" value={`×${save.freeBestCombo}`} tone="bg-[#ffe6ee] text-[#a32a57]" />
               <Record icon={<Star className="h-4 w-4" />} label="Sesiones" value={save.freeSessions} tone="bg-[#eaf7dc] text-[#3f7a3a]" />
             </div>
@@ -105,31 +105,59 @@ export function FreeScreen({ save, layout, onBack, onStart }: FreeScreenProps) {
               </ul>
             </fieldset>
 
-            <button
-              type="button"
-              role="switch"
-              aria-checked={prefs.ice}
-              onClick={() => setPrefs((p) => ({ ...p, ice: !p.ice }))}
-              className="flex min-h-[56px] items-center justify-between gap-3 rounded-3xl border border-white bg-white/75 px-4 py-2 text-left font-bold text-[#4a3a6b] shadow-md active:scale-[0.99]"
-            >
-              <span className="flex items-center gap-2.5">
-                <span className="grid h-9 w-9 place-items-center rounded-xl bg-[#e8f6ff] text-[#3a86c8]">
-                  <Snowflake className="h-5 w-5" />
-                </span>
-                <span>
-                  Hielo congelado
-                  <span className="block text-xs font-semibold text-[#7a6a8a]">Algunas fichas empiezan atrapadas</span>
-                </span>
-              </span>
-              <span
-                className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${prefs.ice ? 'bg-[#8fbf6a]' : 'bg-[#d9cfe8]'}`}
-                aria-hidden="true"
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              <button
+                type="button"
+                role="switch"
+                aria-checked={prefs.ice}
+                onClick={() => setPrefs((p) => ({ ...p, ice: !p.ice }))}
+                className="flex min-h-[54px] items-center justify-between gap-2.5 rounded-3xl border border-white bg-white/75 px-3.5 py-2 text-left font-bold text-[#4a3a6b] shadow-md active:scale-[0.99]"
               >
+                <span className="flex items-center gap-2">
+                  <span className="grid h-8 w-8 place-items-center rounded-xl bg-[#e8f6ff] text-[#3a86c8]">
+                    <Snowflake className="h-4 w-4" />
+                  </span>
+                  <span className="text-xs">
+                    Hielo
+                    <span className="block text-[10px] font-semibold text-[#7a6a8a]">Fichas congeladas</span>
+                  </span>
+                </span>
                 <span
-                  className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-transform ${prefs.ice ? 'translate-x-[22px]' : 'translate-x-0.5'}`}
-                />
-              </span>
-            </button>
+                  className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${prefs.ice ? 'bg-[#8fbf6a]' : 'bg-[#d9cfe8]'}`}
+                  aria-hidden="true"
+                >
+                  <span
+                    className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${prefs.ice ? 'translate-x-[22px]' : 'translate-x-0.5'}`}
+                  />
+                </span>
+              </button>
+
+              <button
+                type="button"
+                role="switch"
+                aria-checked={prefs.cookie}
+                onClick={() => setPrefs((p) => ({ ...p, cookie: !p.cookie }))}
+                className="flex min-h-[54px] items-center justify-between gap-2.5 rounded-3xl border border-white bg-white/75 px-3.5 py-2 text-left font-bold text-[#4a3a6b] shadow-md active:scale-[0.99]"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="grid h-8 w-8 place-items-center rounded-xl bg-[#fff2e0] text-[#a35c1d]">
+                    <Cookie className="h-4 w-4" />
+                  </span>
+                  <span className="text-xs">
+                    Galleta
+                    <span className="block text-[10px] font-semibold text-[#7a6a8a]">Topping crujiente</span>
+                  </span>
+                </span>
+                <span
+                  className={`relative h-6 w-11 shrink-0 rounded-full transition-colors ${prefs.cookie ? 'bg-[#8fbf6a]' : 'bg-[#d9cfe8]'}`}
+                  aria-hidden="true"
+                >
+                  <span
+                    className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${prefs.cookie ? 'translate-x-[22px]' : 'translate-x-0.5'}`}
+                  />
+                </span>
+              </button>
+            </div>
 
             <button
               type="button"

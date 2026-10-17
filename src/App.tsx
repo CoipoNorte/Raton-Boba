@@ -94,7 +94,14 @@ export default function App() {
 
   const startFree = useCallback((prefs: FreePrefs): void => {
     setSave((prev) => ({ ...prev, freePrefs: prefs }));
-    setPlayCfg(buildFreeLevel({ kinds: prefs.kinds, ice: prefs.ice, seed: randomSeed() }));
+    setPlayCfg(
+      buildFreeLevel({
+        kinds: prefs.kinds,
+        ice: prefs.ice,
+        cookie: prefs.cookie,
+        seed: randomSeed(),
+      }),
+    );
     setAttempt((a) => a + 1);
     setScreen('play');
   }, []);

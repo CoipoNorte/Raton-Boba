@@ -4,6 +4,7 @@ interface CandyIconProps {
   kind: Kind;
   special?: Special;
   ice?: number;
+  cookie?: number;
   className?: string;
 }
 
@@ -162,6 +163,32 @@ function SpecialArt({ kind, special }: { kind: Kind; special: Special }) {
       </>
     );
   }
+  if (special === 'tiger') {
+    // Tiger Boba swirl con fuego de caramelo y rayas de tigre
+    return (
+      <>
+        <defs>
+          <radialGradient id="g-tiger" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#fff3b0" />
+            <stop offset="45%" stopColor="#ff9f1c" />
+            <stop offset="85%" stopColor="#8b3e00" />
+            <stop offset="100%" stopColor="#3d1400" />
+          </radialGradient>
+        </defs>
+        <circle cx="32" cy="32" r="28" fill="url(#g-tiger)" opacity="0.95" />
+        {/* Rayas de tigre de azúcar quemada */}
+        <path d="M14 22 Q24 28 16 38" stroke="#3d1400" strokeWidth="3" fill="none" strokeLinecap="round" />
+        <path d="M50 20 Q40 28 48 38" stroke="#3d1400" strokeWidth="3" fill="none" strokeLinecap="round" />
+        <path d="M26 10 Q32 20 28 32" stroke="#3d1400" strokeWidth="3" fill="none" strokeLinecap="round" />
+        <path d="M38 10 Q32 20 36 32" stroke="#3d1400" strokeWidth="3" fill="none" strokeLinecap="round" />
+        <path d="M22 46 Q32 38 42 46" stroke="#3d1400" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+        {/* Vórtice dorado */}
+        <circle cx="32" cy="32" r="28" fill="none" stroke="#ffd166" strokeWidth="2.5" strokeDasharray="10 4" opacity="0.9" />
+        <circle cx="32" cy="32" r="8" fill="#ffe066" opacity="0.9" />
+        <path d="M32 20 L34 29 L43 32 L34 35 L32 44 L30 35 L21 32 L30 29 Z" fill="#fff" />
+      </>
+    );
+  }
   // rainbow
   const r = 18;
   const circ = 2 * Math.PI * r;
@@ -194,7 +221,7 @@ function CandyIconGlow({ kind }: { kind: Kind }) {
 function IceOverlay({ layers }: { layers: number }) {
   return (
     <g>
-      <rect x="4" y="4" width="56" height="56" rx="16" fill="#bfe9ff" opacity={layers >= 2 ? 0.55 : 0.4} />
+      <rect x="4" y="4" width="56" height="56" rx="16" fill="#bfe9ff" opacity={layers >= 2 ? 0.6 : 0.42} />
       <rect x="4" y="4" width="56" height="56" rx="16" fill="none" stroke="#ffffff" strokeWidth="2.5" opacity="0.9" />
       <path d="M14 20 L24 30 L20 42" stroke="#ffffff" strokeWidth="1.6" fill="none" opacity="0.8" />
       {layers >= 2 && (
@@ -204,11 +231,31 @@ function IceOverlay({ layers }: { layers: number }) {
   );
 }
 
-/** Una ficha dibujada totalmente en SVG, con power-up e hielo opcionales. */
-export function CandyIcon({ kind, special = 'none', ice = 0, className }: CandyIconProps) {
+function CookieOverlay({ layers }: { layers: number }) {
+  return (
+    <g>
+      <rect x="3" y="3" width="58" height="58" rx="14" fill="#d99859" opacity={layers >= 2 ? 0.95 : 0.82} />
+      <rect x="3" y="3" width="58" height="58" rx="14" fill="none" stroke="#8b4f1f" strokeWidth="2" opacity="0.9" />
+      {/* Chispas de chocolate y textura de galleta */}
+      <circle cx="16" cy="18" r="3.2" fill="#4a2508" />
+      <circle cx="48" cy="20" r="2.8" fill="#4a2508" />
+      <circle cx="32" cy="34" r="3.5" fill="#4a2508" />
+      <circle cx="20" cy="46" r="3" fill="#4a2508" />
+      <circle cx="46" cy="48" r="2.6" fill="#4a2508" />
+      <path d="M12 30 Q22 26 26 36" stroke="#8b4f1f" strokeWidth="1.5" fill="none" opacity="0.6" />
+      <path d="M38 16 Q44 26 52 24" stroke="#8b4f1f" strokeWidth="1.5" fill="none" opacity="0.6" />
+      {layers >= 2 && (
+        <rect x="6" y="6" width="52" height="52" rx="10" fill="#fff" opacity="0.22" />
+      )}
+    </g>
+  );
+}
+
+/** Una ficha dibujada totalmente en SVG, con power-up, hielo y galleta opcionales. */
+export function CandyIcon({ kind, special = 'none', ice = 0, cookie = 0, className }: CandyIconProps) {
   return (
     <svg viewBox="0 0 64 64" className={className} aria-hidden="true" focusable="false">
-      {special === 'rainbow' ? (
+      {special === 'rainbow' || special === 'tiger' ? (
         <SpecialArt kind={kind} special={special} />
       ) : (
         <>
@@ -216,6 +263,7 @@ export function CandyIcon({ kind, special = 'none', ice = 0, className }: CandyI
           {special !== 'none' && <SpecialArt kind={kind} special={special} />}
         </>
       )}
+      {cookie > 0 && <CookieOverlay layers={cookie} />}
       {ice > 0 && <IceOverlay layers={ice} />}
     </svg>
   );

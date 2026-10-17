@@ -1,8 +1,8 @@
 /** Ingredientes que se pueden combinar en el tablero. */
 export type Kind = 'perla' | 'mango' | 'fresa' | 'matcha' | 'taro' | 'leche';
 
-/** Power-ups que aparecen al hacer combinaciones grandes. */
-export type Special = 'none' | 'striped-h' | 'striped-v' | 'bomb' | 'rainbow';
+/** Power-ups que aparecen al hacer combinaciones grandes o en niveles avanzados. */
+export type Special = 'none' | 'striped-h' | 'striped-v' | 'bomb' | 'rainbow' | 'tiger';
 
 export interface Pos {
   r: number;
@@ -16,15 +16,27 @@ export interface Tile {
   special: Special;
   /** Capas de hielo (0 = libre). Una ficha con hielo no puede combinarse. */
   ice: number;
+  /** Capas de galleta crujiente (0 = sin galleta). Se rompe con combinaciones adyacentes. */
+  cookie?: number;
 }
 
 export type Board = Tile[][];
 
 export type Goal =
   | { type: 'collect'; kind: Kind; target: number }
-  | { type: 'ice'; target: number };
+  | { type: 'ice'; target: number }
+  | { type: 'cookie'; target: number }
+  /** Alcanzar una cantidad de propinas durante el pedido. */
+  | { type: 'tips'; target: number }
+  /** Encadenar una cascada de al menos N niveles. */
+  | { type: 'combo'; target: number };
 
 export interface IceSpec {
+  count: number;
+  layers: 1 | 2;
+}
+
+export interface CookieSpec {
   count: number;
   layers: 1 | 2;
 }
@@ -44,6 +56,7 @@ export interface LevelConfig {
   kinds: Kind[];
   goals: Goal[];
   ice: IceSpec | null;
+  cookie?: CookieSpec | null;
   thresholds: StarThresholds;
   seed: number;
   /** Modo libre: sin objetivos, sin límite de movimientos y sin final de partida. */
@@ -87,6 +100,7 @@ export interface GameState {
   tips: number;
   collected: Partial<Record<Kind, number>>;
   iceTotal: number;
+  cookieTotal: number;
   popping: number[];
   cascade: number;
   gain: number;
@@ -102,6 +116,8 @@ export interface GameState {
   turns: number;
   /** Mayor cascada alcanzada en la partida. */
   maxCascade: number;
+  /** Si se activó una explosión mayor o combo fiebre para efectos estimulantes. */
+  feverLevel?: number;
 }
 
 /** Número de sabores disponibles en el modo libre. */

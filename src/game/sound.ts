@@ -109,22 +109,41 @@ function noise({ dur, vol = 0.12, delay = 0, freq = 1800, q = 0.8, type = 'bandp
   src.start(t0, Math.random() * 0.5, dur + 0.05);
 }
 
-const PENTA = [523.25, 587.33, 659.25, 783.99, 880, 1046.5];
+const PENTA = [523.25, 587.33, 659.25, 783.99, 880, 1046.5, 1174.66, 1318.51];
 
 export const sfx = {
   /** Clic suave al tocar una ficha. */
   select(): void {
     tone({ freq: 660, dur: 0.07, vol: 0.09, type: 'triangle', slideTo: 880 });
   },
-  /** Ficha deslizándose: un "fshh" corto. */
+  /** Ficha deslizándose: un "fshh" corto y táctil. */
   swap(): void {
     noise({ dur: 0.12, vol: 0.07, freq: 900, sweepTo: 2600, q: 1.2 });
   },
   /** Combinación normal, con tono más alto según la cascada. */
   pop(level = 0): void {
-    const base = 520 + Math.min(level, 6) * 70;
-    tone({ freq: base, dur: 0.13, vol: 0.16, type: 'sine', slideTo: base * 1.8 });
-    noise({ dur: 0.06, vol: 0.06, freq: 3200, type: 'highpass' });
+    const base = 520 + Math.min(level, 7) * 75;
+    tone({ freq: base, dur: 0.13, vol: 0.18, type: 'sine', slideTo: base * 1.8 });
+    noise({ dur: 0.06, vol: 0.07, freq: 3200, type: 'highpass' });
+  },
+  /** Crujido de galleta rompiéndose */
+  crunch(): void {
+    noise({ dur: 0.14, vol: 0.11, freq: 1200, sweepTo: 400, q: 2.2 });
+    tone({ freq: 280, dur: 0.08, vol: 0.12, type: 'sawtooth', slideTo: 140 });
+  },
+  /** Chorreado Tiger Boba activado: sonido crepitante y dulce de azúcar morena */
+  tiger(): void {
+    noise({ dur: 0.35, vol: 0.14, freq: 600, sweepTo: 3400, q: 1.5 });
+    [0, 2, 4, 6].forEach((i) => {
+      tone({ freq: PENTA[i] ?? 600, dur: 0.22, vol: 0.15, type: 'triangle', delay: i * 0.04 });
+    });
+  },
+  /** Fiebre de combo: campanillas mágicas estimulantes */
+  fever(): void {
+    [0, 1, 2, 3, 4, 5].forEach((i) => {
+      tone({ freq: (PENTA[i] ?? 500) * 1.5, dur: 0.28, vol: 0.12, type: 'sine', delay: i * 0.035 });
+    });
+    noise({ dur: 0.25, vol: 0.06, freq: 6000, type: 'highpass' });
   },
   /** Perlas cayendo: una cascada de clics pequeños. */
   pearls(count = 5): void {
@@ -154,9 +173,9 @@ export const sfx = {
   },
   /** Victoria: arpegio de éxito. */
   win(): void {
-    const seq = [523.25, 659.25, 783.99, 1046.5, 1318.5];
-    seq.forEach((f, i) => tone({ freq: f, dur: 0.32, vol: 0.14, type: 'triangle', delay: i * 0.1 }));
-    noise({ dur: 0.4, vol: 0.05, delay: 0.5, freq: 5000, type: 'highpass' });
+    const seq = [523.25, 659.25, 783.99, 1046.5, 1318.5, 1567.98];
+    seq.forEach((f, i) => tone({ freq: f, dur: 0.35, vol: 0.15, type: 'triangle', delay: i * 0.09 }));
+    noise({ dur: 0.45, vol: 0.07, delay: 0.45, freq: 5000, type: 'highpass' });
   },
   /** Estrella ganada en el resultado. */
   star(index: number): void {
@@ -180,5 +199,17 @@ export const sfx = {
   /** Botón de interfaz. */
   click(): void {
     tone({ freq: 740, dur: 0.05, vol: 0.07, type: 'sine' });
+  },
+  /** Explosión grande: muchas fichas eliminadas de golpe. */
+  boom(): void {
+    noise({ dur: 0.45, vol: 0.16, freq: 220, sweepTo: 70, q: 0.7, type: 'lowpass' });
+    tone({ freq: 150, dur: 0.3, vol: 0.16, type: 'sine', slideTo: 55 });
+    noise({ dur: 0.3, vol: 0.08, delay: 0.04, freq: 4200, type: 'highpass' });
+  },
+  /** Campanilla brillante: región o pedido desbloqueado. */
+  chime(): void {
+    [1046.5, 1318.5, 1567.98].forEach((f, i) =>
+      tone({ freq: f, dur: 0.4, vol: 0.12, type: 'triangle', delay: i * 0.07 }),
+    );
   },
 };

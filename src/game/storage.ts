@@ -9,6 +9,7 @@ import type { FreeKindCount } from './types';
 export interface FreePrefs {
   kinds: FreeKindCount;
   ice: boolean;
+  cookie?: boolean;
 }
 
 export interface SaveData {
@@ -48,7 +49,7 @@ export function defaultSave(): SaveData {
     freeBest: 0,
     freeBestCombo: 0,
     freeSessions: 0,
-    freePrefs: { kinds: 4, ice: false },
+    freePrefs: { kinds: 4, ice: false, cookie: false },
   };
 }
 
@@ -104,10 +105,14 @@ function nonNegativeInt(value: unknown): number {
 }
 
 function sanitizeFreePrefs(value: unknown): FreePrefs {
-  if (!value || typeof value !== 'object') return { kinds: 4, ice: false };
+  if (!value || typeof value !== 'object') return { kinds: 4, ice: false, cookie: false };
   const v = value as Partial<Record<keyof FreePrefs, unknown>>;
   const kinds: FreeKindCount = v.kinds === 5 ? 5 : v.kinds === 6 ? 6 : 4;
-  return { kinds, ice: typeof v.ice === 'boolean' ? v.ice : false };
+  return {
+    kinds,
+    ice: typeof v.ice === 'boolean' ? v.ice : false,
+    cookie: typeof v.cookie === 'boolean' ? v.cookie : false,
+  };
 }
 
 export function sanitizeSave(raw: unknown): SaveData {
