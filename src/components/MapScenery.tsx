@@ -407,6 +407,50 @@ function AuroraArc({ hue = '#63c9bb' }: { hue?: string }) {
   );
 }
 
+/** Brocheta de dango tricolor. */
+function Dango() {
+  return (
+    <svg viewBox="0 0 80 140" className="h-full w-full">
+      <rect x="37" y="6" width="6" height="130" rx="3" fill="#c9a078" />
+      <circle cx="40" cy="34" r="20" fill="#ffb7c9" stroke="#fff" strokeWidth="3" />
+      <circle cx="40" cy="72" r="20" fill="#fffdf7" stroke="#f0dccb" strokeWidth="3" />
+      <circle cx="40" cy="110" r="20" fill="#a8d98a" stroke="#fff" strokeWidth="3" />
+      <circle cx="33" cy="28" r="5" fill="#fff" opacity="0.6" />
+      <circle cx="33" cy="66" r="5" fill="#fff" opacity="0.8" />
+      <circle cx="33" cy="104" r="5" fill="#fff" opacity="0.5" />
+    </svg>
+  );
+}
+
+/** Luna de leche creciente con estrellas. */
+function MilkMoon({ hue = '#fff6dc' }: { hue?: string }) {
+  return (
+    <svg viewBox="0 0 110 110" className="h-full w-full">
+      <circle cx="56" cy="54" r="38" fill={hue} />
+      <circle cx="74" cy="44" r="32" fill="#c9cff5" opacity="0.85" />
+      <circle cx="42" cy="66" r="6" fill="#e8ddc0" />
+      <circle cx="34" cy="44" r="4" fill="#e8ddc0" />
+      <path d="M96 14 L98 20 L104 22 L98 24 L96 30 L94 24 L88 22 L94 20 Z" fill="#fff" />
+      <path d="M14 86 L16 91 L21 93 L16 95 L14 100 L12 95 L7 93 L12 91 Z" fill="#ffd166" />
+    </svg>
+  );
+}
+
+/** Concha marina con perla. */
+function Shell({ hue = '#ffd6e4' }: { hue?: string }) {
+  return (
+    <svg viewBox="0 0 110 100" className="h-full w-full">
+      <ellipse cx="55" cy="94" rx="36" ry="5" fill="#000" opacity="0.12" />
+      <path d="M10 70 Q55 -10 100 70 Q78 88 55 86 Q32 88 10 70 Z" fill={hue} stroke="#e98fb0" strokeWidth="3" />
+      {[24, 40, 55, 70, 86].map((x) => (
+        <path key={x} d={`M55 84 L${x} 22`} stroke="#e98fb0" strokeWidth="2.5" opacity="0.7" />
+      ))}
+      <circle cx="55" cy="74" r="10" fill="#fffdf7" stroke="#d8c6b5" strokeWidth="2" />
+      <circle cx="51" cy="70" r="3" fill="#fff" />
+    </svg>
+  );
+}
+
 /** Trono dorado del palacio. */
 function Throne({ hue = '#edc85e' }: { hue?: string }) {
   return (
@@ -642,6 +686,96 @@ function decorationsFor(scene: SceneKind): Decoration[] {
         { left: 82, top: 54, size: 82, node: <BobaCup hue="#ffe9a8" lid="#c99a0e" />, anim: 'map-bob', delay: 0.8 },
         { left: 1, top: 76, size: 114, node: <Throne hue="#f5d87a" />, anim: 'map-float', delay: 1.6, opacity: 0.9 },
         { left: 85, top: 88, size: 64, node: <Firework hue="#ffd166" />, anim: 'map-twinkle', delay: 1.3 },
+      ];
+    case 'lighthouse':
+      return [
+        { left: 0, top: 6, size: 118, node: <Pagoda hue="#3a8fb7" />, anim: 'map-float' },
+        { left: 82, top: 20, size: 128, node: <Wave hue="#9fd2ea" />, anim: 'map-sway', delay: 0.6 },
+        { left: 2, top: 46, size: 70, node: <Lantern hue="#ffd166" />, anim: 'map-sway', delay: 1.1 },
+        { left: 83, top: 56, size: 78, node: <BobaCup hue="#fffdf0" lid="#3a8fb7" />, anim: 'map-bob', delay: 0.8 },
+        { left: 0, top: 78, size: 130, node: <Wave hue="#bfe3f4" />, anim: 'map-sway', delay: 1.6 },
+        { left: 84, top: 88, size: 66, node: <Shell hue="#ffe9d6" />, anim: 'map-bob', delay: 1.9 },
+      ];
+    case 'lotus':
+      return [
+        { left: 1, top: 8, size: 92, node: <Shell hue="#ffc3dd" />, anim: 'map-float' },
+        { left: 83, top: 20, size: 70, node: <TeaPot />, anim: 'map-float', delay: 0.6 },
+        { left: 0, top: 42, size: 128, node: <Wave hue="#9bd6c0" />, anim: 'map-sway', delay: 1.2 },
+        { left: 82, top: 56, size: 84, node: <Shell hue="#ffd6ea" />, anim: 'map-bob', delay: 0.9 },
+        { left: 2, top: 76, size: 74, node: <BobaCup hue="#f6fff2" lid="#d9609b" />, anim: 'map-bob', delay: 1.5 },
+        { left: 85, top: 88, size: 56, node: <TeaLeaf hue="#9bd6c0" />, anim: 'map-sway', delay: 2 },
+      ];
+    case 'mochi':
+      return [
+        { left: 2, top: 6, size: 70, node: <Dango />, anim: 'map-sway' },
+        { left: 82, top: 18, size: 120, node: <MarketStall hue="#e2789a" />, anim: 'map-float', delay: 0.6 },
+        { left: 3, top: 42, size: 64, node: <Dango />, anim: 'map-bob', delay: 1.1 },
+        { left: 84, top: 56, size: 76, node: <BobaCup hue="#ffd3df" lid="#e2789a" />, anim: 'map-bob', delay: 0.8 },
+        { left: 1, top: 74, size: 84, node: <PearlJar hue="#e2789a" />, anim: 'map-float', delay: 1.6 },
+        { left: 86, top: 88, size: 60, node: <Dango />, anim: 'map-sway', delay: 2 },
+      ];
+    case 'desert':
+      return [
+        { left: 0, top: 8, size: 116, node: <Volcano hue="#e8b77a" />, anim: 'map-float', opacity: 0.85 },
+        { left: 83, top: 20, size: 68, node: <TeaPot />, anim: 'map-float', delay: 0.6 },
+        { left: 2, top: 44, size: 76, node: <BobaCup hue="#e6b57d" lid="#8b4513" />, anim: 'map-bob', delay: 1.1 },
+        { left: 80, top: 56, size: 110, node: <Volcano hue="#d9a066" />, anim: 'map-float', delay: 1.4, opacity: 0.8 },
+        { left: 2, top: 78, size: 72, node: <PearlJar hue="#8b4513" />, anim: 'map-float', delay: 1.8 },
+        { left: 85, top: 90, size: 60, node: <Firework hue="#ffb703" />, anim: 'map-twinkle', delay: 0.9 },
+      ];
+    case 'reef':
+      return [
+        { left: 0, top: 8, size: 92, node: <Shell hue="#ffd6e4" />, anim: 'map-bob' },
+        { left: 82, top: 18, size: 128, node: <Wave hue="#6fcfcf" />, anim: 'map-sway', delay: 0.5 },
+        { left: 2, top: 42, size: 80, node: <SugarCrystal hue="#8fe0d8" />, anim: 'map-twinkle', delay: 1 },
+        { left: 83, top: 56, size: 86, node: <Shell hue="#ffe9a8" />, anim: 'map-bob', delay: 0.8 },
+        { left: 0, top: 76, size: 128, node: <Wave hue="#8fe0e6" />, anim: 'map-sway', delay: 1.5 },
+        { left: 84, top: 88, size: 72, node: <BobaCup hue="#c8f1ef" lid="#1f9fa8" />, anim: 'map-bob', delay: 1.9 },
+      ];
+    case 'train':
+      return [
+        { left: 0, top: 6, size: 124, node: <MarketStall hue="#6b5bd6" />, anim: 'map-float' },
+        { left: 84, top: 20, size: 56, node: <Lantern hue="#ffd166" />, anim: 'map-sway', delay: 0.6 },
+        { left: 2, top: 44, size: 90, node: <TeaPot />, anim: 'map-float', delay: 1.1 },
+        { left: 81, top: 54, size: 116, node: <MarketStall hue="#ff9f6b" />, anim: 'map-float', delay: 1.5 },
+        { left: 3, top: 78, size: 58, node: <Lantern hue="#e0517d" />, anim: 'map-sway', delay: 0.9 },
+        { left: 84, top: 90, size: 64, node: <MilkMoon />, anim: 'map-twinkle', delay: 1.8 },
+      ];
+    case 'castle':
+      return [
+        { left: 0, top: 6, size: 120, node: <Pagoda hue="#d46fd0" />, anim: 'map-float' },
+        { left: 82, top: 20, size: 120, node: <CloudIsland hue="#f3d1f6" />, anim: 'map-float', delay: 0.7 },
+        { left: 2, top: 46, size: 72, node: <Dango />, anim: 'map-sway', delay: 1.2 },
+        { left: 82, top: 58, size: 80, node: <BobaCup hue="#f6d4f4" lid="#d46fd0" />, anim: 'map-bob', delay: 0.9 },
+        { left: 0, top: 78, size: 124, node: <CloudIsland hue="#e2d4ff" />, anim: 'map-sway', delay: 1.6 },
+        { left: 85, top: 90, size: 60, node: <Firework hue="#ff8fb1" />, anim: 'map-twinkle', delay: 2 },
+      ];
+    case 'jungle':
+      return [
+        { left: 0, top: 6, size: 118, node: <FruitTree hue="#4fae63" />, anim: 'map-sway' },
+        { left: 83, top: 18, size: 104, node: <Bamboo hue="#3f9a55" />, anim: 'map-sway', delay: 0.6 },
+        { left: 2, top: 44, size: 76, node: <BobaCup hue="#ffd6e0" lid="#2f9a55" />, anim: 'map-bob', delay: 1 },
+        { left: 80, top: 56, size: 112, node: <FruitTree hue="#6ec27e" />, anim: 'map-sway', delay: 1.4 },
+        { left: 1, top: 78, size: 66, node: <TeaLeaf hue="#2f9a55" />, anim: 'map-sway', delay: 1.8 },
+        { left: 85, top: 90, size: 58, node: <TeaLeaf hue="#ff8fb1" />, anim: 'map-sway', delay: 2.1 },
+      ];
+    case 'moon':
+      return [
+        { left: 0, top: 6, size: 104, node: <MilkMoon />, anim: 'map-float' },
+        { left: 83, top: 20, size: 64, node: <Firework hue="#b9a4f0" />, anim: 'map-twinkle', delay: 0.5 },
+        { left: 2, top: 44, size: 96, node: <Planet hue="#9aa6e8" />, anim: 'map-float', delay: 1.1 },
+        { left: 81, top: 56, size: 82, node: <Flask hue="#c9cff5" />, anim: 'map-bob', delay: 0.8 },
+        { left: 3, top: 78, size: 70, node: <Firework hue="#ffd166" />, anim: 'map-twinkle', delay: 1.6 },
+        { left: 84, top: 90, size: 80, node: <MilkMoon hue="#fff1c9" />, anim: 'map-float', delay: 2 },
+      ];
+    case 'summit':
+      return [
+        { left: 0, top: 6, size: 120, node: <Throne />, anim: 'map-float' },
+        { left: 83, top: 18, size: 84, node: <IceCrystal hue="#f6e7ff" />, anim: 'map-twinkle', delay: 0.6 },
+        { left: 2, top: 42, size: 128, node: <AuroraArc hue="#f0c46a" />, anim: 'map-sway', delay: 1.1, opacity: 0.85 },
+        { left: 81, top: 54, size: 112, node: <Pagoda hue="#d4880f" />, anim: 'map-float', delay: 1.4 },
+        { left: 2, top: 78, size: 76, node: <BobaCup hue="#ffe9a8" lid="#d4880f" />, anim: 'map-bob', delay: 0.9 },
+        { left: 85, top: 90, size: 66, node: <Firework hue="#ffd166" />, anim: 'map-twinkle', delay: 1.8 },
       ];
     case 'temple':
     default:

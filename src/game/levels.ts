@@ -23,7 +23,17 @@ export type SceneKind =
   | 'sky'
   | 'carnival'
   | 'aurora'
-  | 'royal';
+  | 'royal'
+  | 'lighthouse'
+  | 'lotus'
+  | 'mochi'
+  | 'desert'
+  | 'reef'
+  | 'train'
+  | 'castle'
+  | 'jungle'
+  | 'moon'
+  | 'summit';
 
 export interface ZoneInfo {
   id: number;
@@ -303,6 +313,136 @@ export const ZONES: ZoneInfo[] = [
     sky: ['#fff6dd', '#ffe6d9'],
     ground: '#edc85e',
   },
+  {
+    id: 20,
+    name: 'Faro de leche de coco',
+    short: 'Faro de coco',
+    blurb: 'Luz cálida sobre un mar de leche de coco.',
+    from: 201,
+    to: 210,
+    accent: '#3a8fb7',
+    badge: '🗼',
+    scene: 'lighthouse',
+    sky: ['#e3f3fb', '#fff7ea'],
+    ground: '#9fd2ea',
+  },
+  {
+    id: 21,
+    name: 'Estanque de loto & té blanco',
+    short: 'Estanque de loto',
+    blurb: 'Flores flotantes y té blanco delicado.',
+    from: 211,
+    to: 220,
+    accent: '#d9609b',
+    badge: '🪷',
+    scene: 'lotus',
+    sky: ['#ffeaf4', '#eaf8f2'],
+    ground: '#9bd6c0',
+  },
+  {
+    id: 22,
+    name: 'Fábrica de mochi esponjoso',
+    short: 'Fábrica mochi',
+    blurb: 'Dango tricolor y cintas de arroz dulce.',
+    from: 221,
+    to: 230,
+    accent: '#e2789a',
+    badge: '🍡',
+    scene: 'mochi',
+    sky: ['#fff0f4', '#f2fbe9'],
+    ground: '#f2b8c6',
+  },
+  {
+    id: 23,
+    name: 'Desierto de canela & chai',
+    short: 'Desierto de chai',
+    blurb: 'Dunas especiadas bajo un sol de caramelo.',
+    from: 231,
+    to: 240,
+    accent: '#c47a2c',
+    badge: '🏜️',
+    scene: 'desert',
+    sky: ['#fff1dc', '#ffe5c7'],
+    ground: '#e8b77a',
+  },
+  {
+    id: 24,
+    name: 'Arrecife de perlas marinas',
+    short: 'Arrecife',
+    blurb: 'Conchas brillantes y burbujas de coral.',
+    from: 241,
+    to: 250,
+    accent: '#1f9fa8',
+    badge: '🐚',
+    scene: 'reef',
+    sky: ['#dcf5f6', '#e8f0ff'],
+    ground: '#6fcfcf',
+  },
+  {
+    id: 25,
+    name: 'Tren nocturno del té',
+    short: 'Tren nocturno',
+    blurb: 'Vagones humeantes entre estaciones de boba.',
+    from: 251,
+    to: 260,
+    accent: '#6b5bd6',
+    badge: '🚂',
+    scene: 'train',
+    sky: ['#e8e4ff', '#fff0e2'],
+    ground: '#a99be8',
+  },
+  {
+    id: 26,
+    name: 'Castillo de algodón de azúcar',
+    short: 'Castillo algodón',
+    blurb: 'Torres esponjosas de color pastel.',
+    from: 261,
+    to: 270,
+    accent: '#d46fd0',
+    badge: '🏰',
+    scene: 'castle',
+    sky: ['#fbeaff', '#e8f4ff'],
+    ground: '#e6b3ec',
+  },
+  {
+    id: 27,
+    name: 'Selva de lichi & orquídeas',
+    short: 'Selva de lichi',
+    blurb: 'Hojas gigantes, orquídeas y frutas jugosas.',
+    from: 271,
+    to: 280,
+    accent: '#2f9a55',
+    badge: '🌺',
+    scene: 'jungle',
+    sky: ['#e3f8e6', '#fff0f2'],
+    ground: '#6ec27e',
+  },
+  {
+    id: 28,
+    name: 'Observatorio lunar de oolong',
+    short: 'Observatorio lunar',
+    blurb: 'Telescopios, lunas de leche y polvo de estrellas.',
+    from: 281,
+    to: 290,
+    accent: '#4c5fc9',
+    badge: '🌙',
+    scene: 'moon',
+    sky: ['#e3e7ff', '#f4ecff'],
+    ground: '#9aa6e8',
+  },
+  {
+    id: 29,
+    name: 'Cumbre del Boba Infinito',
+    short: 'Cumbre infinita',
+    blurb: 'El último ascenso de la leyenda barista.',
+    from: 291,
+    to: 300,
+    accent: '#d4880f',
+    badge: '♾️',
+    scene: 'summit',
+    sky: ['#fff4d9', '#f1e6ff'],
+    ground: '#f0c46a',
+  },
 ];
 
 export { LEVEL_COUNT };
@@ -327,6 +467,8 @@ type Archetype =
   | 'combo'
   | 'rush'
   | 'frozenFeast'
+  | 'gauntlet'
+  | 'sweetStorm'
   | 'boss';
 
 function archetypeFor(id: number): Archetype {
@@ -339,19 +481,20 @@ function archetypeFor(id: number): Archetype {
   const tripleOk = id >= 36;
   const rushOk = id >= 105;
   const feastOk = id >= 125;
+  const lateOk = id >= 205;
   const slot = ((id - 1) % 10) + 1;
   // A partir de la región 11 la rotación se desplaza para que no se repita el patrón.
   const shifted = id > 100 && (Math.floor((id - 1) / 10) % 2 === 1);
 
   switch (slot) {
     case 1:
-      return 'single';
+      return lateOk && shifted ? 'gauntlet' : 'single';
     case 2:
       return rushOk && shifted ? 'rush' : tipsOk ? 'tips' : 'single';
     case 3:
       return feastOk && shifted ? 'frozenFeast' : iceOk ? 'ice' : 'single';
     case 4:
-      return 'double';
+      return lateOk && !shifted ? 'sweetStorm' : 'double';
     case 5:
       return cookieOk ? 'cookie' : iceOk ? 'ice' : 'single';
     case 6:
@@ -383,8 +526,9 @@ export function buildLevel(id: number): LevelConfig {
   let cookie: CookieSpec | null = null;
 
   /** Objetivo de recolección escalado por dificultad. */
+  // El tope se aplica antes del factor: así los pedidos dobles/triples reparten la meta.
   const collect = (factor = 1): number =>
-    Math.max(8, Math.min(28, Math.round((12 + id * 0.28) * factor)));
+    Math.max(8, Math.round(Math.min(28, 12 + id * 0.28) * factor));
 
   const pick = (offset: number): Kind => kinds[(id + offset) % kinds.length] as Kind;
 
@@ -431,7 +575,7 @@ export function buildLevel(id: number): LevelConfig {
     }
 
     case 'tips': {
-      goals.push({ type: 'tips', target: 900 + id * 42 });
+      goals.push({ type: 'tips', target: Math.min(4400, 900 + id * 42) });
       moves += 5;
       break;
     }
@@ -445,9 +589,30 @@ export function buildLevel(id: number): LevelConfig {
 
     case 'rush': {
       // Hora punta: propinas altas y un combo encadenado.
-      goals.push({ type: 'tips', target: 1100 + id * 30 });
+      goals.push({ type: 'tips', target: Math.min(4000, 1100 + id * 30) });
       goals.push({ type: 'combo', target: 3 });
       moves += 7;
+      break;
+    }
+
+    case 'gauntlet': {
+      // Desafío del barista: hielo y dos recolecciones.
+      const iceCount = Math.min(8, 4 + Math.floor(id / 70));
+      ice = { count: iceCount, layers: 1 };
+      goals.push({ type: 'ice', target: iceCount });
+      goals.push({ type: 'collect', kind: pick(0), target: collect(0.34) });
+      goals.push({ type: 'collect', kind: pick(3), target: collect(0.34) });
+      moves += 9;
+      break;
+    }
+
+    case 'sweetStorm': {
+      // Tormenta dulce: galleta crujiente y un combo encadenado.
+      const cookieCount = Math.min(8, 4 + Math.floor(id / 75));
+      cookie = { count: cookieCount, layers: 1 };
+      goals.push({ type: 'cookie', target: cookieCount });
+      goals.push({ type: 'combo', target: 3 });
+      moves += 8;
       break;
     }
 
@@ -488,6 +653,8 @@ export function buildLevel(id: number): LevelConfig {
   if (id >= 85) moves += 2;
   if (id >= 120) moves += 2;
   if (id >= 160) moves += 2;
+  if (id >= 200) moves += 3;
+  if (id >= 250) moves += 2;
 
   return {
     id,
@@ -500,7 +667,8 @@ export function buildLevel(id: number): LevelConfig {
     goals,
     ice,
     cookie,
-    thresholds: { two: 600 + id * 38, three: 1100 + id * 68 },
+    // Las estrellas crecen con la dificultad, pero con techo para que el 2★/3★ siga siendo alcanzable.
+    thresholds: { two: 600 + Math.min(id, 120) * 38, three: 1100 + Math.min(id, 95) * 68 },
     seed: id * 9973 + 17,
   };
 }

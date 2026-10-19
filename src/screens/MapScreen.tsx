@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Coins, Crown, Lock, Star, Volume2, VolumeX } from 'lucide-react';
 import { LEVEL_COUNT } from '../game/constants';
@@ -75,13 +75,38 @@ export function MapScreen({ save, onBack, onPlay, onToggleSound }: MapScreenProp
   const totalStars = Object.values(save.stars).reduce((s, v) => s + v, 0);
   const currentZone = zoneOf(current);
 
+  // Ventana visible: solo se dibujan las regiones cercanas (rendimiento en móvil).
+  const [view, setView] = useState({ top: 0, height: 900 });
+
   // Centra el mapa en el pedido actual al entrar.
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     const target = nodeY(current - 1, height);
     el.scrollTop = Math.max(0, target - el.clientHeight * 0.6);
+    setView({ top: el.scrollTop, height: el.clientHeight });
   }, [current, height]);
+
+  // Sigue el desplazamiento con un único frame por evento.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    let frame = 0;
+    const onScroll = (): void => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        setView({ top: el.scrollTop, height: el.clientHeight });
+      });
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      el.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, []);
 
   // Segmentos del camino entre nodos consecutivos.
   const segments = useMemo(() => {
@@ -128,7 +153,7 @@ export function MapScreen({ save, onBack, onPlay, onToggleSound }: MapScreenProp
           </h1>
           <p className="truncate text-[10px] font-bold uppercase tracking-wide text-[#7a6a8a] sm:text-[11px]">
             <span className="sm:hidden">
-              {ZONES[currentZone]?.badge} {ZONES[currentZone]?.short} · {current}/{LEVEL_COUNT}
+              {ZONES[currentZone]?.badge} {ZONES[currentZone]?.short} · #{current}
             </span>
             <span className="hidden sm:inline">
               {ZONES[currentZone]?.badge} {ZONES[currentZone]?.name} · Pedido {current}/{LEVEL_COUNT}
@@ -161,7 +186,13 @@ export function MapScreen({ save, onBack, onPlay, onToggleSound }: MapScreenProp
       >
         <div className="relative w-full" style={{ height }}>
           {/* Regiones ilustradas: ocupan todo el ancho de la ventana */}
-          {bands.map((b) => (
+          {bands
+            .filter(
+              (b) =>
+                b.top < view.top + view.height * 2.2 &&
+                b.top + b.height > view.top - view.height * 1.2,
+            )
+            .map((b) => (
             <ZoneScene
               key={b.zone.id}
               zone={b.zone}

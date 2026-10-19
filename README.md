@@ -9,7 +9,7 @@ Un puzle relajante y adictivo en el laboratorio de té de boba más acogedor de 
 ## Modos de juego
 
 ### 🛍️ Tienda Boba
-El modo principal. Un camino ilustrado con **200 pedidos** repartidos en veinte regiones, cada una con su propio paisaje, colores y decorado:
+El modo principal. Un camino ilustrado con **300 pedidos** repartidos en treinta regiones, cada una con su propio paisaje, colores y decorado:
 
 | Región | Pedidos | Ambiente |
 |---|---|---|
@@ -33,6 +33,16 @@ El modo principal. Un camino ilustrado con **200 pedidos** repartidos en veinte 
 | 🎪 Carnaval de perlas danzantes | 171 – 180 | Confeti, carpas y perlas en desfile |
 | 🌠 Aurora de té boreal | 181 – 190 | Luces danzantes sobre hielo de oolong |
 | 👑 Palacio del Boba Eterno | 191 – 200 | El trono dorado de la leyenda del boba |
+| 🗼 Faro de leche de coco | 201 – 210 | Luz cálida sobre un mar de coco |
+| 🪷 Estanque de loto & té blanco | 211 – 220 | Flores flotantes y té delicado |
+| 🍡 Fábrica de mochi esponjoso | 221 – 230 | Dango tricolor y arroz dulce |
+| 🏜️ Desierto de canela & chai | 231 – 240 | Dunas especiadas bajo un sol de caramelo |
+| 🐚 Arrecife de perlas marinas | 241 – 250 | Conchas brillantes y burbujas de coral |
+| 🚂 Tren nocturno del té | 251 – 260 | Vagones humeantes entre estaciones |
+| 🏰 Castillo de algodón de azúcar | 261 – 270 | Torres esponjosas de color pastel |
+| 🌺 Selva de lichi & orquídeas | 271 – 280 | Hojas gigantes y frutas jugosas |
+| 🌙 Observatorio lunar de oolong | 281 – 290 | Lunas de leche y polvo de estrellas |
+| ♾️ Cumbre del Boba Infinito | 291 – 300 | El último ascenso de la leyenda barista |
 
 Cada región cierra con un **jefe de zona** (los pedidos 10, 20, 30…) marcado con una corona dorada y con doble obstáculo.
 
@@ -44,6 +54,8 @@ Cada región cierra con un **jefe de zona** (los pedidos 10, 20, 30…) marcado 
 - **Combo:** encadena una cascada de 3 o más.
 - **Hora punta:** propinas altas *y* un combo encadenado, a la vez.
 - **Banquete helado:** hielo y galleta en el mismo tablero.
+- **Desafío del barista:** hielo y dos recolecciones a la vez.
+- **Tormenta dulce:** galleta crujiente y un combo encadenado.
 
 ### ⭐ Estrellas
 - **1 estrella:** cumple el objetivo del pedido.
